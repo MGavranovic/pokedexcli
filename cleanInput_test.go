@@ -1,53 +1,31 @@
 package main
 
-import "testing"
+import (
+	"reflect"
+	"testing"
+)
 
 func TestCleanInput(t *testing.T) {
-	cases := []struct {
+	cases := map[string]struct {
 		input    string
 		expected []string
 	}{
-		{
+		"simple": {
 			input:    " Hello world",
 			expected: []string{"hello", "world"},
 		},
-		{
+		"with punctuation": {
 			input:    " Hello world!",
 			expected: []string{"hello", "world!"},
 		},
-		{
-			input:    " Hello world",
-			expected: []string{"hello", "world"},
-		},
-		{
-			input:    " Hello world",
-			expected: []string{"hello", "world"},
-		},
-		{
-			input:    " Hello world",
-			expected: []string{"hello", "world"},
-		},
-		{
-			input:    " Hello world",
-			expected: []string{"hello", "world"},
-		},
 	}
 
-	for _, c := range cases {
-		actual := cleanInput(c.input)
-		t.Logf("input: %q, expected: %v, actual: %v", c.input, c.expected, actual)
-		if len(actual) != len(c.expected) {
-			t.Errorf("Expected %v, but got %v\n", c.expected, actual)
-			t.Fail()
-		}
-
-		for i := range actual {
-			word := actual[i]
-			expectedWord := c.expected[i]
-			if word != expectedWord {
-				t.Errorf("Expected %v, but got %v\n", c.expected, actual)
-				t.Fail()
+	for name, c := range cases {
+		t.Run(name, func(t *testing.T) {
+			actual := cleanInput(c.input)
+			if !reflect.DeepEqual(c.expected, actual) {
+				t.Fatalf("Input: %v |Expected: %v | Actual: %v", c.input, c.expected, actual)
 			}
-		}
+		})
 	}
 }
