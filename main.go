@@ -10,6 +10,10 @@ func main() {
 			name:        "help",
 			description: "Displays helpful information about the Pokedex",
 			callback:    commandHelp,
+		}, "map": {
+			name:        "map",
+			description: "Displays map locations",
+			callback:    commandMap,
 		},
 	}
 

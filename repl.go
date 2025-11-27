@@ -7,6 +7,8 @@ import (
 	"strings"
 )
 
+var cfg config
+
 func repl() {
 	var input string
 	var cleanedInput []string
@@ -17,7 +19,10 @@ func repl() {
 			input = scanner.Text()
 			cleanedInput = cleanInput(input)
 			if cmd, ok := commands[cleanedInput[0]]; ok {
-				cmd.callback()
+				err := cmd.callback(&cfg)
+				if err != nil {
+					fmt.Printf("Error running %s: %s\n", cmd.name, err)
+				}
 			} else {
 				fmt.Println("Unknown command")
 			}
