@@ -14,8 +14,8 @@ type cliCommand struct {
 }
 
 type config struct {
-	Next string
-	Prev string
+	Next *string
+	Prev *string
 }
 
 var commands map[string]cliCommand
@@ -36,9 +36,41 @@ func commandHelp(cfg *config) error {
 }
 
 func commandMap(cfg *config) error {
-	err := pokeapi.GetLocationAreas("https://pokeapi.co/api/v2/location-area")
-	if err != nil {
-		return err
+	if cfg.Next != nil {
+		err, next, prev := pokeapi.GetLocationAreas(*cfg.Next)
+		if err != nil {
+			return err
+		} else {
+			cfg.Next = next
+			cfg.Prev = prev
+		}
+	} else {
+		if cfg.Next == nil && cfg.Prev != nil {
+			fmt.Println("You're on the last page!")
+		} else {
+			err, next, prev := pokeapi.GetLocationAreas("https://pokeapi.co/api/v2/location-area")
+			if err != nil {
+				return err
+			} else {
+				cfg.Next = next
+				cfg.Prev = prev
+			}
+		}
+	}
+	return nil
+}
+
+func commandMapBack(cfg *config) error {
+	if cfg.Prev != nil {
+		err, next, prev := pokeapi.GetLocationAreas(*cfg.Prev)
+		if err != nil {
+			return err
+		} else {
+			cfg.Next = next
+			cfg.Prev = prev
+		}
+	} else {
+		fmt.Println("You're on the first page!")
 	}
 	return nil
 }

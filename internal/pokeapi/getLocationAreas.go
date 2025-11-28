@@ -8,8 +8,8 @@ import (
 
 type LocationArea struct {
 	Count    int       `json:"count"`
-	Next     string    `json:"next"`
-	Previous any       `json:"previous"`
+	Next     *string   `json:"next"`
+	Previous *string   `json:"previous"`
 	Results  []Results `json:"results"`
 }
 
@@ -18,16 +18,18 @@ type Results struct {
 	URL  string `json:"url"`
 }
 
-func GetLocationAreas(url string) error {
+func GetLocationAreas(url string) (error, *string, *string) {
 	resp, err := http.Get(url)
 	if err != nil {
-		return err
+		return err, nil, nil
 	}
 	var data LocationArea
 	decoder := json.NewDecoder(resp.Body)
 	if err := decoder.Decode(&data); err != nil {
-		return err
+		return err, nil, nil
 	}
-	fmt.Println(data)
-	return nil
+	for _, n := range data.Results {
+		fmt.Println(n.Name)
+	}
+	return nil, data.Next, data.Previous
 }

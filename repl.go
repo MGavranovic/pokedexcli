@@ -7,9 +7,12 @@ import (
 	"strings"
 )
 
-var cfg config
-
 func repl() {
+	cfg := config{
+		Next: nil,
+		Prev: nil,
+	}
+
 	var input string
 	var cleanedInput []string
 	scanner := bufio.NewScanner(os.Stdin)

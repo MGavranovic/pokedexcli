@@ -12,8 +12,12 @@ func main() {
 			callback:    commandHelp,
 		}, "map": {
 			name:        "map",
-			description: "Displays map locations",
+			description: "Display next 20 locations on the map",
 			callback:    commandMap,
+		}, "mapb": {
+			name:        "mapb",
+			description: "Display previous 20 locations on the map",
+			callback:    commandMapBack,
 		},
 	}
 
