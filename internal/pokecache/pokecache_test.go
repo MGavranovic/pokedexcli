@@ -37,3 +37,23 @@ func TestAddGet(t *testing.T) {
 		})
 	}
 }
+
+func TestReapLoop(t *testing.T) {
+	baseTime := 5 * time.Second
+	waitTime := baseTime + 1*time.Second
+
+	cache := NewCache(baseTime)
+	cache.Add("test reap loop", []byte("test reap loop"))
+
+	_, ok := cache.Get("test reap loop")
+	if !ok {
+		t.Error("expected to find key")
+	}
+
+	time.Sleep(waitTime) // wait for the reaping to happen
+
+	_, ok = cache.Get("test reap loop")
+	if ok {
+		t.Error("expected to not find key")
+	}
+}
