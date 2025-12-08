@@ -5,12 +5,16 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
+
+	"github.com/MGavranovic/pokedexcli/internal/pokecache"
 )
 
 func repl() {
 	cfg := config{
-		Next: nil,
-		Prev: nil,
+		Next:  nil,
+		Prev:  nil,
+		cache: pokecache.NewCache(5 * time.Second),
 	}
 
 	var input string

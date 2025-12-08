@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/MGavranovic/pokedexcli/helpers"
 	"github.com/MGavranovic/pokedexcli/internal/pokeapi"
+	"github.com/MGavranovic/pokedexcli/internal/pokecache"
 )
 
 type cliCommand struct {
@@ -14,8 +16,9 @@ type cliCommand struct {
 }
 
 type config struct {
-	Next *string
-	Prev *string
+	Next  *string
+	Prev  *string
+	cache *pokecache.Cache
 }
 
 var commands map[string]cliCommand
@@ -37,21 +40,40 @@ func commandHelp(cfg *config) error {
 
 func commandMap(cfg *config) error {
 	if cfg.Next != nil {
-		err, next, prev := pokeapi.GetLocationAreas(*cfg.Next)
-		if err != nil {
-			return err
+		val, ok := cfg.cache.Get(*cfg.Next)
+		if ok {
+			fmt.Println(val)
 		} else {
+			err, next, prev, data := pokeapi.GetLocationAreas(*cfg.Next)
+			if err != nil {
+				return err
+			}
+			byteData, err := helpers.LocDataToByte(data)
+			if err != nil {
+				return err
+			}
+			cfg.cache.Add(*cfg.Next, byteData)
 			cfg.Next = next
 			cfg.Prev = prev
+
 		}
 	} else {
 		if cfg.Next == nil && cfg.Prev != nil {
 			fmt.Println("You're on the last page!")
 		} else {
-			err, next, prev := pokeapi.GetLocationAreas("https://pokeapi.co/api/v2/location-area")
-			if err != nil {
-				return err
+			val, ok := cfg.cache.Get("https://pokeapi.co/api/v2/location-area")
+			if ok {
+				fmt.Println(val)
 			} else {
+				err, next, prev, data := pokeapi.GetLocationAreas("https://pokeapi.co/api/v2/location-area")
+				if err != nil {
+					return err
+				}
+				byteData, err := helpers.LocDataToByte(data)
+				if err != nil {
+					return err
+				}
+				cfg.cache.Add("https://pokeapi.co/api/v2/location-area", byteData)
 				cfg.Next = next
 				cfg.Prev = prev
 			}
@@ -62,7 +84,7 @@ func commandMap(cfg *config) error {
 
 func commandMapBack(cfg *config) error {
 	if cfg.Prev != nil {
-		err, next, prev := pokeapi.GetLocationAreas(*cfg.Prev)
+		err, next, prev, _ := pokeapi.GetLocationAreas(*cfg.Prev)
 		if err != nil {
 			return err
 		} else {
