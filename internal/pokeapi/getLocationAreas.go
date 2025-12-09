@@ -2,7 +2,6 @@ package pokeapi
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 )
 
@@ -28,8 +27,6 @@ func GetLocationAreas(url string) (error, *string, *string, *LocationArea) {
 	if err := decoder.Decode(&data); err != nil {
 		return err, nil, nil, &LocationArea{}
 	}
-	for _, n := range data.Results {
-		fmt.Println(n.Name)
-	}
+	PrintLocations(&data)
 	return nil, data.Next, data.Previous, &data
 }

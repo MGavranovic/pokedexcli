@@ -42,7 +42,13 @@ func commandMap(cfg *config) error {
 	if cfg.Next != nil {
 		val, ok := cfg.cache.Get(*cfg.Next)
 		if ok {
-			fmt.Println(val)
+			data, err := helpers.ByteToLocData(val)
+			if err != nil {
+				return err
+			}
+			pokeapi.PrintLocations(data)
+			cfg.Next = data.Next
+			cfg.Prev = data.Previous
 		} else {
 			err, next, prev, data := pokeapi.GetLocationAreas(*cfg.Next)
 			if err != nil {
@@ -63,7 +69,13 @@ func commandMap(cfg *config) error {
 		} else {
 			val, ok := cfg.cache.Get("https://pokeapi.co/api/v2/location-area")
 			if ok {
-				fmt.Println(val)
+				data, err := helpers.ByteToLocData(val)
+				if err != nil {
+					return err
+				}
+				pokeapi.PrintLocations(data)
+				cfg.Next = data.Next
+				cfg.Prev = data.Previous
 			} else {
 				err, next, prev, data := pokeapi.GetLocationAreas("https://pokeapi.co/api/v2/location-area")
 				if err != nil {
@@ -84,10 +96,25 @@ func commandMap(cfg *config) error {
 
 func commandMapBack(cfg *config) error {
 	if cfg.Prev != nil {
-		err, next, prev, _ := pokeapi.GetLocationAreas(*cfg.Prev)
-		if err != nil {
-			return err
+		val, ok := cfg.cache.Get(*cfg.Prev)
+		if ok {
+			data, err := helpers.ByteToLocData(val)
+			if err != nil {
+				return err
+			}
+			pokeapi.PrintLocations(data)
+			cfg.Next = data.Next
+			cfg.Prev = data.Previous
 		} else {
+			err, next, prev, data := pokeapi.GetLocationAreas(*cfg.Prev)
+			if err != nil {
+				return err
+			}
+			byteData, err := helpers.LocDataToByte(data)
+			if err != nil {
+				return err
+			}
+			cfg.cache.Add(*cfg.Prev, byteData)
 			cfg.Next = next
 			cfg.Prev = prev
 		}
