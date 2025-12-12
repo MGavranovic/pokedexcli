@@ -126,15 +126,34 @@ func commandMapBack(cfg *config, param string) error {
 
 func commandExplore(cfg *config, param string) error {
 	url := fmt.Sprintf("https://pokeapi.co/api/v2/location-area/%s", param)
+
 	fmt.Printf("Exploring %s...\n", param)
-	data, err := pokeapi.GetLocationAreaDetails(url)
-	if err != nil {
-		fmt.Printf("Error exploring %s...\n", param)
-		return err
+
+	dataCache, ok := cfg.cache.Get(url)
+	if ok {
+		data, err := helpers.ByteToLocDetails(dataCache)
+		if err != nil {
+			return err
+		}
+		for _, pokemon := range data.PokemonEncounters {
+			fmt.Printf(" - %s\n", pokemon.Pokemon.Name)
+		}
+	} else {
+		data, err := pokeapi.GetLocationAreaDetails(url)
+		if err != nil {
+			fmt.Printf("Error exploring %s...\n", param)
+			return err
+		}
+		fmt.Printf("Found pokemon:\n")
+		for _, pokemon := range data.PokemonEncounters {
+			fmt.Printf(" - %s\n", pokemon.Pokemon.Name)
+		}
+		byteData, errCon := helpers.LocDetailsToByte(data)
+		if errCon != nil {
+			return errCon
+		}
+		cfg.cache.Add(url, byteData)
 	}
-	fmt.Printf("Found pokemon:\n")
-	for _, pokemon := range data.PokemonEncounters {
-		fmt.Printf(" - %s\n", pokemon.Pokemon.Name)
-	}
+
 	return nil
 }
