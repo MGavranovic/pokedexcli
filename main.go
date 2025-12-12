@@ -18,6 +18,10 @@ func main() {
 			name:        "mapb",
 			description: "Display previous 20 locations on the map",
 			callback:    commandMapBack,
+		}, "explore": {
+			name:        "explore",
+			description: "Displays details on an area",
+			callback:    commandExplore,
 		},
 	}
 

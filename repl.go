@@ -26,7 +26,10 @@ func repl() {
 			input = scanner.Text()
 			cleanedInput = cleanInput(input)
 			if cmd, ok := commands[cleanedInput[0]]; ok {
-				err := cmd.callback(&cfg)
+				if len(cleanedInput) < 2 {
+					cleanedInput = append(cleanedInput, "")
+				}
+				err := cmd.callback(&cfg, cleanedInput[1])
 				if err != nil {
 					fmt.Printf("Error running %s: %s\n", cmd.name, err)
 				}

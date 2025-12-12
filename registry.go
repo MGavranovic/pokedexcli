@@ -12,7 +12,7 @@ import (
 type cliCommand struct {
 	name        string
 	description string
-	callback    func(cfg *config) error
+	callback    func(cfg *config, param string) error
 }
 
 type config struct {
@@ -23,13 +23,13 @@ type config struct {
 
 var commands map[string]cliCommand
 
-func commandExit(cfg *config) error {
+func commandExit(cfg *config, param string) error {
 	fmt.Println("Closing the Pokedex... Goodbye!")
 	os.Exit(0)
 	return nil
 }
 
-func commandHelp(cfg *config) error {
+func commandHelp(cfg *config, param string) error {
 	fmt.Println("Welcome to the Pokedex!")
 	fmt.Printf("Usage:\n\n")
 	for _, v := range commands {
@@ -38,7 +38,7 @@ func commandHelp(cfg *config) error {
 	return nil
 }
 
-func commandMap(cfg *config) error {
+func commandMap(cfg *config, param string) error {
 	if cfg.Next != nil {
 		val, ok := cfg.cache.Get(*cfg.Next)
 		if ok {
@@ -94,7 +94,7 @@ func commandMap(cfg *config) error {
 	return nil
 }
 
-func commandMapBack(cfg *config) error {
+func commandMapBack(cfg *config, param string) error {
 	if cfg.Prev != nil {
 		val, ok := cfg.cache.Get(*cfg.Prev)
 		if ok {
@@ -120,6 +120,21 @@ func commandMapBack(cfg *config) error {
 		}
 	} else {
 		fmt.Println("You're on the first page!")
+	}
+	return nil
+}
+
+func commandExplore(cfg *config, param string) error {
+	url := fmt.Sprintf("https://pokeapi.co/api/v2/location-area/%s", param)
+	fmt.Printf("Exploring %s...\n", param)
+	data, err := pokeapi.GetLocationAreaDetails(url)
+	if err != nil {
+		fmt.Printf("Error exploring %s...\n", param)
+		return err
+	}
+	fmt.Printf("Found pokemon:\n")
+	for _, pokemon := range data.PokemonEncounters {
+		fmt.Printf(" - %s\n", pokemon.Pokemon.Name)
 	}
 	return nil
 }
